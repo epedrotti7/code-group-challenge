@@ -82,4 +82,10 @@ public class ProjectController {
     public ProjectResponse changeStatus(@PathVariable Long id, @Valid @RequestBody StatusUpdateRequest request) {
         return projectService.changeStatus(id, request.status());
     }
+
+    @Operation(summary = "Aloca um membro funcionario ao projeto")
+    @PostMapping("/{id}/members")
+    public ProjectResponse allocateMember(@PathVariable Long id, @Valid @RequestBody MemberAllocationRequest request) {
+        return projectService.allocateMember(id, request.memberId());
+    }
 }
