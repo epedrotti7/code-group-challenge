@@ -94,4 +94,11 @@ public class ProjectController {
     public ProjectResponse removeMember(@PathVariable Long id, @PathVariable Long memberId) {
         return projectService.removeMember(id, memberId);
     }
+
+    @Operation(summary = "Exclui um projeto")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        projectService.delete(id);
+    }
 }
