@@ -55,4 +55,19 @@ public class ProjectController {
     public ProjectResponse getById(@PathVariable Long id) {
         return projectService.getById(id);
     }
+
+    @Operation(summary = "Lista projetos com paginacao e filtros")
+    @GetMapping
+    public PageResponse<ProjectResponse> list(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) ProjectStatus status,
+            @RequestParam(required = false) Long managerId,
+            @RequestParam(required = false) LocalDate startFrom,
+            @RequestParam(required = false) LocalDate startUntil,
+            @RequestParam(required = false) BigDecimal minBudget,
+            @RequestParam(required = false) BigDecimal maxBudget,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        ProjectFilter filter = new ProjectFilter(name, status, managerId, startFrom, startUntil, minBudget, maxBudget);
+        return PageResponse.from(projectService.list(filter, pageable));
+    }
 }
