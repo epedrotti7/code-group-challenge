@@ -42,4 +42,10 @@ public class MemberMockController {
     public MemberResponse getById(@PathVariable Long id) {
         return memberService.getById(id);
     }
+
+    @Operation(summary = "Lista todos os membros")
+    @GetMapping
+    public ResponseEntity<List<MemberResponse>> findAll() {
+        return ResponseEntity.ok(memberService.findAll());
+    }
 }
