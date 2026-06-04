@@ -70,4 +70,10 @@ public class ProjectController {
         ProjectFilter filter = new ProjectFilter(name, status, managerId, startFrom, startUntil, minBudget, maxBudget);
         return PageResponse.from(projectService.list(filter, pageable));
     }
+
+    @Operation(summary = "Atualiza os dados de um projeto")
+    @PutMapping("/{id}")
+    public ProjectResponse update(@PathVariable Long id, @Valid @RequestBody ProjectUpdateRequest request) {
+        return projectService.update(id, request);
+    }
 }
