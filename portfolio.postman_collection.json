@@ -1,0 +1,280 @@
+{
+  "info": {
+    "_postman_id": "f3a1c2d4-5e6f-47a8-9b0c-1d2e3f4a5b6c",
+    "name": "Portfólio de Projetos API",
+    "description": "Collection completa da API de gerenciamento de portfólio de projetos.\n\n- Base URL: variável `baseUrl` (padrão http://localhost:8080)\n- Autenticação: HTTP Basic (admin/admin123) herdada da collection\n- Prefixo dos endpoints: /api/v1\n\nFluxo sugerido: crie um gerente e um funcionário (a pasta Membros captura os IDs automaticamente), depois crie um projeto (também captura o `projectId`) e use os demais requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{username}}", "type": "string" },
+      { "key": "password", "value": "{{password}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "username", "value": "admin", "type": "string" },
+    { "key": "password", "value": "admin123", "type": "string" },
+    { "key": "memberGerenteId", "value": "", "type": "string" },
+    { "key": "memberFuncionarioId", "value": "", "type": "string" },
+    { "key": "projectId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Membros (API externa mockada)",
+      "description": "Cadastro e consulta de membros enviando nome e atribuição (cargo). Apenas membros com atribuição `funcionario` podem ser alocados a projetos.",
+      "item": [
+        {
+          "name": "Criar membro - gerente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('memberGerenteId', json.id);",
+                  "pm.test('atribuicao GERENTE', () => pm.expect(json.attribution).to.eql('GERENTE'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ana Gerente\",\n  \"attribution\": \"gerente\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/external/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "external", "members"]
+            }
+          }
+        },
+        {
+          "name": "Criar membro - funcionário",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('memberFuncionarioId', json.id);",
+                  "pm.test('atribuicao FUNCIONARIO', () => pm.expect(json.attribution).to.eql('FUNCIONARIO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Beto Funcionario\",\n  \"attribution\": \"funcionario\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/external/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "external", "members"]
+            }
+          }
+        },
+        {
+          "name": "Consultar membro por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/external/members/{{memberFuncionarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "external", "members", "{{memberFuncionarioId}}"]
+            }
+          }
+        },
+        {
+          "name": "Listar membros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/external/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "external", "members"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projetos",
+      "description": "CRUD de projetos, transição de status (respeitando a sequência lógica) e alocação de membros.",
+      "item": [
+        {
+          "name": "Criar projeto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('projectId', json.id);",
+                  "pm.test('possui classificacao de risco', () => pm.expect(json.riskLevel).to.be.oneOf(['BAIXO','MEDIO','ALTO']));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Migração de Datacenter\",\n  \"startDate\": \"2026-01-10\",\n  \"expectedEndDate\": \"2026-03-10\",\n  \"totalBudget\": 150000.00,\n  \"description\": \"Migração do datacenter on-premise para a nuvem\",\n  \"managerId\": {{memberGerenteId}},\n  \"memberIds\": [{{memberFuncionarioId}}]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects"]
+            }
+          }
+        },
+        {
+          "name": "Consultar projeto por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects", "{{projectId}}"]
+            }
+          }
+        },
+        {
+          "name": "Listar projetos (paginação + filtros)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects?page=0&size=20&sort=id,asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "sort", "value": "id,asc" },
+                { "key": "name", "value": "datacenter", "disabled": true },
+                { "key": "status", "value": "EM_ANALISE", "disabled": true },
+                { "key": "managerId", "value": "1", "disabled": true },
+                { "key": "startFrom", "value": "2026-01-01", "disabled": true },
+                { "key": "startUntil", "value": "2026-12-31", "disabled": true },
+                { "key": "minBudget", "value": "100000", "disabled": true },
+                { "key": "maxBudget", "value": "500000", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Atualizar projeto",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Migração de Datacenter (revisado)\",\n  \"startDate\": \"2026-01-10\",\n  \"expectedEndDate\": \"2026-05-10\",\n  \"actualEndDate\": null,\n  \"totalBudget\": 250000.00,\n  \"description\": \"Escopo ampliado com plano de rollback\",\n  \"managerId\": {{memberGerenteId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects", "{{projectId}}"]
+            }
+          }
+        },
+        {
+          "name": "Alterar status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ANALISE_REALIZADA\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects", "{{projectId}}", "status"]
+            },
+            "description": "Sequência válida: EM_ANALISE → ANALISE_REALIZADA → ANALISE_APROVADA → INICIADO → PLANEJADO → EM_ANDAMENTO → ENCERRADO. CANCELADO pode ser aplicado a qualquer momento. Não é permitido pular etapas."
+          }
+        },
+        {
+          "name": "Alocar membro",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": {{memberFuncionarioId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects", "{{projectId}}", "members"]
+            },
+            "description": "Apenas membros com atribuição funcionário podem ser alocados. Mínimo 1 e máximo 10 membros por projeto; um membro não pode estar em mais de 3 projetos ativos simultaneamente."
+          }
+        },
+        {
+          "name": "Remover membro",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/members/{{memberFuncionarioId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects", "{{projectId}}", "members", "{{memberFuncionarioId}}"]
+            }
+          }
+        },
+        {
+          "name": "Excluir projeto",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "projects", "{{projectId}}"]
+            },
+            "description": "Projetos em iniciado, em andamento ou encerrado não podem ser excluídos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Relatórios",
+      "item": [
+        {
+          "name": "Relatório do portfólio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/reports/portfolio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "reports", "portfolio"]
+            },
+            "description": "Quantidade de projetos por status, total orçado por status, média de duração dos projetos encerrados e total de membros únicos alocados."
+          }
+        }
+      ]
+    }
+  ]
+}
