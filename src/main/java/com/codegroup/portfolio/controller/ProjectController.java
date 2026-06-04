@@ -88,4 +88,10 @@ public class ProjectController {
     public ProjectResponse allocateMember(@PathVariable Long id, @Valid @RequestBody MemberAllocationRequest request) {
         return projectService.allocateMember(id, request.memberId());
     }
+
+    @Operation(summary = "Remove um membro do projeto")
+    @DeleteMapping("/{id}/members/{memberId}")
+    public ProjectResponse removeMember(@PathVariable Long id, @PathVariable Long memberId) {
+        return projectService.removeMember(id, memberId);
+    }
 }
