@@ -49,4 +49,10 @@ public class ProjectController {
         ProjectResponse created = projectService.create(request);
         return ResponseEntity.created(URI.create("/api/v1/projects/" + created.id())).body(created);
     }
+
+    @Operation(summary = "Consulta um projeto pelo id")
+    @GetMapping("/{id}")
+    public ProjectResponse getById(@PathVariable Long id) {
+        return projectService.getById(id);
+    }
 }
