@@ -76,4 +76,10 @@ public class ProjectController {
     public ProjectResponse update(@PathVariable Long id, @Valid @RequestBody ProjectUpdateRequest request) {
         return projectService.update(id, request);
     }
+
+    @Operation(summary = "Altera o status de um projeto respeitando a sequencia logica")
+    @PatchMapping("/{id}/status")
+    public ProjectResponse changeStatus(@PathVariable Long id, @Valid @RequestBody StatusUpdateRequest request) {
+        return projectService.changeStatus(id, request.status());
+    }
 }
