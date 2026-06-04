@@ -36,4 +36,10 @@ public class MemberMockController {
     public MemberResponse create(@Valid @RequestBody MemberRequest request) {
         return memberService.create(request);
     }
+
+    @Operation(summary = "Consulta um membro pelo id")
+    @GetMapping("/{id}")
+    public MemberResponse getById(@PathVariable Long id) {
+        return memberService.getById(id);
+    }
 }
